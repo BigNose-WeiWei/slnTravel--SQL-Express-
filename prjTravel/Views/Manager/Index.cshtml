@@ -1,0 +1,59 @@
+﻿@model IEnumerable<prjTravel.Models.Classify>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<h4>相簿分類頁面</h4>
+<hr />
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Cid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cstatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cid)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cname)
+                </td>
+                <td>
+                    @{
+                        if (item.Cstatus == 1)
+                        {
+                            <a asp-action="ClassifyStatus" asp-route-Cid="@item.Cid" class="btn btn-success">顯示</a>
+                        }
+                        else if (item.Cstatus == 0)
+                        {
+                            <a asp-action="ClassifyStatus" asp-route-Cid="@item.Cid" class="btn btn-dark">隱藏</a>
+                        }
+                    }
+                </td>
+                <td>
+                    <a asp-action="ClassifyEdit" asp-route-Cid="@item.Cid" class="btn btn-warning" style="margin-left: 5px">修改名稱</a>
+                    <a asp-action="FolderClassify" asp-route-Cid="@item.Cid" class="btn btn-primary" style="margin-left: 5px">預覽照片</a>
+@*                     <a asp-action="ClassifyDelete" asp-route-Cid="@item.Cid" class="btn btn-danger" style="margin-left: 5px"
+                       onclick="return confirm('確定要刪除嗎?')">刪除</a> *@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

@@ -1,0 +1,114 @@
+﻿@using prjTravel.Models
+
+@inject TravelDbContext _dbcontext
+
+@{
+    var classify = _dbcontext.Classifies.Where(m => m.Cstatus == 1).OrderBy(m => m.Cid);
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["Title"] - 台灣旅遊網</title>
+
+    <link href="~/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        .form-group {
+            margin-top: 10px;
+        }
+
+        .dropdown-menu :hover {
+            background-color: #EAC100; /* 更改鼠標懸停時的背景顏色 */
+            color: #FFFFFF;
+        }
+
+        .navbar-nav :hover {
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-xl bg-warning bg-gradient bg-opacity-75 fw-bold">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-action="Index">台灣旅遊網</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="Advertise">廣告上傳</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="AdvertiseItem">廣告列表</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="FolderUpload">照片上傳</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" id="navbardrop" data-bs-toggle="dropdown">
+                            選項分類
+                        </a>
+                        <ul class="dropdown-menu">
+                            @foreach (var item in classify)
+                            {
+                                <li>
+                                    <a class="dropdown-item" asp-action="FolderClassifyIndex" asp-route-Cid="@item.Cid">@item.Cname</a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="Index">相簿分類列表</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="ClassifyCreate">新增相簿分類</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="MemberList">會員列表</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-action="MemberCreate">會員新增</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Logout">登出</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">@User.Identity!.Name 您好</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        @RenderBody()
+    </div>
+
+    <footer class="border-top text-muted mt-3">
+        <div class="container-fluid mt-3">
+            @DateTime.Now.Year - 台灣旅遊網 by <a href="#">WeiWei</a>
+        </div>
+    </footer>
+
+    <script src="~/jquery/jquery.min.js"></script>
+    <script src="~/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
+    @await Html.PartialAsync("_ToastPartial")
+</body>
+</html>

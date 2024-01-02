@@ -1,0 +1,56 @@
+﻿@using prjTravel.Models
+
+@inject TravelDbContext _dbContext
+
+@model prjTravel.Models.Member
+
+@{
+    ViewData["Title"] = "會員資料";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var RoleItme = _dbContext.Roles;
+}
+
+<h4>@Model.Muid - 會員資料</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="MemberEdit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Muid" />
+            <div class="form-group">
+                <label asp-for="Mpwd" class="control-label"></label>
+                <input asp-for="Mpwd" class="form-control" />
+                <span asp-validation-for="Mpwd" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mname" class="control-label"></label>
+                <input asp-for="Mname" class="form-control" />
+                <span asp-validation-for="Mname" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mmail" class="control-label"></label>
+                <input asp-for="Mmail" class="form-control" />
+                <span asp-validation-for="Mmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mrole" class="control-label"></label>
+                <select asp-for="Mrole" class="form-select">
+                    @foreach (var item in RoleItme)
+                    {
+                        <option value="@item.Rid">@item.Rname</option>
+                    }
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <input type="submit" value="儲存" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

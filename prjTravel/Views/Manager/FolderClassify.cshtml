@@ -1,0 +1,87 @@
+﻿@model IEnumerable<prjTravel.Models.Folder>
+
+@{
+    ViewData["Title"] = "相簿分類";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<h4>相簿分類 - @ViewBag.Classify</h4>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Fcid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ftitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fdescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FcreateUser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FcreateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FeditUser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FeditTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fpicture)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fcid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ftitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fdescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FcreateUser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FcreateTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FeditUser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FeditTime)
+            </td>
+            <td>
+                <img src="~/pictures/@item.Fpicture" style="width: 180px" />
+                @* @Html.DisplayFor(modelItem => item.Fpicture) *@
+            </td>
+
+            <td>
+                @{
+                    if (item.Fstatus == 1)
+                    {
+                        <a asp-action="FolderStatus" asp-route-Fid="@item.FfolderId" class="btn btn-success">顯示</a>
+                    }
+                        else if (item.Fstatus == 0)
+                    {
+                        <a asp-action="FolderStatus" asp-route-Fid="@item.FfolderId" class="btn btn-dark">隱藏</a>
+                    }
+                }
+
+@*                 <a asp-action="FolderDelete" asp-route-Fid="@item.FfolderId" class="btn btn-danger"
+                onclick="return confirm('確定要刪除嗎?')">刪除</a> *@
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

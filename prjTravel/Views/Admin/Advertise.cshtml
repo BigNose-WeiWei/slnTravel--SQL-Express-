@@ -1,0 +1,93 @@
+﻿@using prjTravel.Models
+
+@inject TravelDbContext _Dbcontext
+
+@model prjTravel.Models.Advertise
+
+@{
+    ViewData["Title"] = "廣告上傳";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var Folder = _Dbcontext.Folders.Where(m => m.Fstatus == 1).ToList();
+}
+
+<h4 class="fw-bold">廣告上傳</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Advertise" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="AfolderId" class="control-label" >選擇對應客戶</label>
+                <input class="form-select" list="InputItem" asp-for="AfolderId">
+                <datalist id="InputItem">
+                @foreach (var FolderItem in Folder)
+                {
+                    <option value="@FolderItem.FfolderId">@FolderItem.Ftitle</option>
+                }
+                </datalist>
+                <span asp-validation-for="AfolderId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Apictures" class="control-label">小圖</label>
+                <input accept="image/*" type="file" name="AdFormfilesSm" class="form-control" onchange="checkfile(this)"/>
+                <span asp-validation-for="Apictures" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Apictures" class="control-label">大圖</label>
+                <input accept="image/*" type="file" name="AdFormfilesMb" class="form-control" onchange="checkfile(this)"/>
+                <span asp-validation-for="Apictures" class="text-danger"></span>
+            </div>
+@*             <div class="form-group">
+                <label asp-for="Astatus" class="control-label"></label>
+                <input asp-for="Astatus" class="form-control" />
+                <span asp-validation-for="Astatus" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <label asp-for="Arow" class="control-label">廣告順序</label>
+                <input asp-for="Arow" class="form-control" />
+                <span asp-validation-for="Arow" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="上傳" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    //判斷副檔名是否正確
+    function checkfile(sender) {
+
+        // 可接受的附檔名
+        var validExts = new Array(".apng", ".bmp", ".gif", ".jpg", ".jpeg", ".pjpeg", ".png", ".svg+xml", ".tiff", ".webp", ".x-icon", ".ico", ".jfif", ".pjp");
+
+        var fileExt = sender.value;
+        fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+        if (validExts.indexOf(fileExt) < 0) {
+            alert("檔案類型錯誤，只接受照片格式" + validExts);
+            sender.value = null;
+            return false;
+        }
+        else {
+            checkfileNum(sender)
+            return true;
+        }
+    }
+
+    // //設定input的值
+    // document.getElementById('AfolderIdInput').addEventListener('input', function () {
+    //     var selectedOption = document.querySelector('#InputItem option[value="' + this.value + '"]');
+    //     if (selectedOption) {
+    //         this.value = selectedOption.dataset.title; // 設定 input 的值為 data-title 的值
+    //     }
+    // });
+
+</script>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

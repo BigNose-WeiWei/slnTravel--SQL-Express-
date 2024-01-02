@@ -1,0 +1,124 @@
+﻿@using prjTravel.Models
+
+@inject TravelDbContext _dbContext
+
+@model prjTravel.Models.Folder
+
+@{
+    ViewData["Title"] = "變更資料";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var classify = _dbContext.Classifies.Where(m => m.Cstatus == 1).OrderBy(m => m.Cid).ToList();
+}
+
+<h4>變更資料</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="FolderEdit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="FfolderId" />
+            <div class="form-group">
+                <label asp-for="Fcid" class="control-label"></label>
+                <select asp-for="Fcid" class="form-select">
+                    @foreach(var item in classify)
+                    {
+                        <option value="@item.Cid">@item.Cname</option>
+                    }
+                </select>
+@*                 <input asp-for="Fcid" class="form-control" />
+                <span asp-validation-for="Fcid" class="text-danger"></span> *@
+            </div>
+            <div class="form-group">
+                <label asp-for="Ftitle" class="control-label"></label>
+                <input asp-for="Ftitle" class="form-control" />
+                <span asp-validation-for="Ftitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fdescription" class="control-label"></label>
+                <textarea asp-for="Fdescription" class="form-control"></textarea>
+                <span asp-validation-for="Fdescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fpicture" class="control-label">圖檔(最多只能上傳三張圖)</label>
+                <input accept="image/*" type="file" name="TitleFormfiles" class="form-control" onchange="checkfile(this)" multiple />
+                <span asp-validation-for="Fpicture" class="text-danger"></span>
+            </div>
+@*             <div class="form-group">
+                <label asp-for="Fpicture" class="control-label"></label>
+                <input asp-for="Fpicture" class="form-control" />
+                <span asp-validation-for="Fpicture" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FcreateUser" class="control-label"></label>
+                <input asp-for="FcreateUser" class="form-control" />
+                <span asp-validation-for="FcreateUser" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FcreateTime" class="control-label"></label>
+                <input asp-for="FcreateTime" class="form-control" />
+                <span asp-validation-for="FcreateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FeditUser" class="control-label"></label>
+                <input asp-for="FeditUser" class="form-control" />
+                <span asp-validation-for="FeditUser" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FeditTime" class="control-label"></label>
+                <input asp-for="FeditTime" class="form-control" />
+                <span asp-validation-for="FeditTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fstatus" class="control-label"></label>
+                <input asp-for="Fstatus" class="form-control" />
+                <span asp-validation-for="Fstatus" class="text-danger"></span>
+            </div> *@
+            <div class="form-group">
+                <input type="submit" value="儲存" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--阻止使用者上傳非照片格式的檔案,以及數量限制-->
+<script type="text/javascript" language="javascript">
+
+    //判斷副檔名是否正確
+    function checkfile(sender) {
+
+        // 可接受的附檔名
+        var validExts = new Array(".apng", ".bmp", ".gif", ".jpg", ".jpeg", ".pjpeg", ".png", ".svg+xml", ".tiff", ".webp", ".x-icon", ".ico", ".jfif", ".pjp");
+
+        var fileExt = sender.value;
+        fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+        if (validExts.indexOf(fileExt) < 0) {
+            alert("檔案類型錯誤，只接受照片格式" + validExts);
+            sender.value = null;
+            return false;
+        }
+        else {
+            checkfileNum(sender)
+            return true;
+        }
+    }
+
+    //判斷上傳數量是否過大
+    function checkfileNum(sender) {
+
+        var fileLength = sender.files.length;
+
+        if (fileLength > 3) {
+            alert("照片數量不可大於3");
+            sender.value = null;
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+</script>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

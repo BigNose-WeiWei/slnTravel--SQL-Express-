@@ -1,0 +1,95 @@
+﻿@using prjTravel.Models
+
+@inject TravelDbContext _dbContext
+
+@model IEnumerable<prjTravel.Models.Member>
+
+@{
+    ViewData["Title"] = "MemberList";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    var roleItem = _dbContext.Roles.Where(m => m.Rid != "Admin").ToList();
+}
+
+<h4>會員列表</h4>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Muid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mpwd)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mrole)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Mstatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+    var roleName = roleItem.FirstOrDefault(m => m.Rid == item.Mrole);
+            <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Muid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mpwd)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Mmail)
+            </td>
+            <td>
+                @* @Html.DisplayFor(modelItem => item.Mrole) *@
+
+                @(roleName != null ? roleName.Rname : "N/A")
+
+                <!--這邊失敗了... 要使用javascript-->
+@*                 <form asp-action="MemberList" id="MemberStatus">
+                     <select asp-for="@item.Mrole" class="form-select" onclick=submitForm()>
+                        @foreach (var role in roleItem)
+                        {
+                            <option value="@role.Rid">@role.Rname</option>
+                        }
+                    </select>
+                </form> *@
+            </td>
+            <td>
+                @{
+                    if (item.Mstatus == 1)
+                    {
+                            <a asp-action="MemberStatus" asp-route-Uid="@item.Muid" class="btn btn-success">啟用</a>
+                    }
+                    else if (item.Mstatus == 0)
+                    {
+                            <a asp-action="MemberStatus" asp-route-Uid="@item.Muid" class="btn btn-dark">停用</a>
+                    }
+                }
+            </td>
+            <td>
+                <a asp-action="MemberEdit" asp-route-Uid="@item.Muid" class="btn btn-warning" style="margin-left: 5px">編輯</a>
+@*                 <a asp-action="MemberDelete" asp-route-Uid="@item.Muid" class="btn btn-danger" style="margin-left: 5px">刪除</a> *@
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@* <script>
+    function submitForm() {
+        document.getElementById('MemberStatus').onsubmit();
+    }
+</script> *@
