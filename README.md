@@ -50,3 +50,21 @@ FolderPicture 圖片存放位置
     PPicture         //圖片在主機的檔案名稱
     PRow             //排序
 
+# 角色
+Admin、Manager、User、訪客。   
+
+Admin
+
+    最高權限  
+    
+Manager  
+
+    除了不可修改Admin的基本資料外其餘跟Admin相同
+
+User  
+
+    只可上傳檔案，也只能編輯創建者為自己的文章。  
+
+訪客
+
+    只可觀看
