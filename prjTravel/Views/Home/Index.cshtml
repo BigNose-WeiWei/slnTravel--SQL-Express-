@@ -35,7 +35,8 @@
         folderId = adv.AdvertiseIItem.AfolderId,
         pictures = adv.AdvertiseIItem.Apictures,
         title = adv.AdvertiseFolderItem.Ftitle,
-        status = adv.AdvertiseIItem.Astatus
+        status = adv.AdvertiseIItem.Astatus,
+        row = adv.AdvertiseIItem.Arow,
     })
     .Select(advGroup => new
     {
@@ -45,6 +46,7 @@
         pictures = advGroup.Key.pictures,
         title = advGroup.Key.title,
         status = advGroup.Key.status,
+        row = advGroup.Key.row,
         /*取得sm,mb各自的第一筆資料*/
         sm = advGroup.Select(p => p.FolderPictureItem.Ppicture)
                         .Where(pp => pp != null && pp.Contains("_sm"))
@@ -53,6 +55,7 @@
                         .Where(pp => pp != null && pp.Contains("_mb"))
                         .FirstOrDefault() ?? string.Empty,
     })
+    .OrderBy(advItem => advItem.row)
     .ToList();
 }
 
@@ -66,7 +69,7 @@
     int pictureNum = 0;      //幻燈片用
 }
 <!--圖片輪播-->
-<div id="carousellnk_Ad" class="carousel slide carousel-fade" data-bs-ride="carousel">
+<div id="carousellnk_Ad" class="carousel slide carousel-fade " data-bs-ride="carousel">
 
     <!--連結導引-->
     <div class="carousel-indicators">
@@ -93,16 +96,8 @@
     <div class="carousel-inner">
         @foreach (var item in advertisePictures)
         {
-            string WebPath;
+            string WebPath = String.IsNullOrEmpty(item.title) ? "#" : Url.Action("FolderClassify", new { Cid = item.cid, SearchFolder = item.title })!;
             /*如果使用者建立廣告的時候沒有指派客戶就什麼都不做*/
-            if (string.IsNullOrEmpty(item.title))
-            {
-                WebPath = "#";
-            }
-            else
-            {
-                WebPath = $"https://localhost:7267/Home/FolderClassify?Cid={item.cid}&SearchFolder={item.title}";
-            }
 
             if (pictureNum == 0)
             {

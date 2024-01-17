@@ -39,19 +39,21 @@ namespace prjTravel.Controllers
         }
 
         //照片分類查詢
-        public IActionResult FolderClassify(int Cid = 1,string? SearchFolder = null)
+        public IActionResult FolderClassify(int? Cid = null,string? SearchFolder = null)
         {
             string Search = SearchFolder != null ? SearchFolder : "";
+
             /*查詢的時候需要類別代號*/
             ViewData["ClassifyKey"] = _dbContext.Classifies
                 .Where(m => m.Cstatus == 1)
-                .FirstOrDefault(m => m.Cid == Cid)!
-                .Cid;
+                .FirstOrDefault(m => m.Cid == Cid)?
+                .Cid.ToString() ?? "查無資料";
 
             ViewBag.ClassifyName = _dbContext.Classifies
                 .Where(m => m.Cstatus == 1)
-                .FirstOrDefault(m => m.Cid == Cid)!
-                .Cname;
+                .FirstOrDefault(m => m.Cid == Cid)?
+                .Cname ?? "查無資料";
+
             var folderClassify = _dbContext.Folders
                 .Where(m => m.Fcid == Cid && m.Fstatus == 1 && m.Ftitle!.Contains(Search))
                 .OrderByDescending(m => m.FeditTime)
@@ -156,7 +158,7 @@ namespace prjTravel.Controllers
                 return RedirectToAction("Index", member.Mrole);
             }
 
-            TempData["Error"] = "帳密錯誤，請重新檢查";
+            TempData["Error"] = "帳密錯誤，或被關閉請聯絡管理員!";
             return View();
         }
 
@@ -167,5 +169,37 @@ namespace prjTravel.Controllers
             return RedirectToAction("Index");
         }
 
+
+        [HttpPost]
+        [HttpGet]
+        /*新增資料時判斷客戶編號是否重複 當作共用方法放在Home控制器裡*/
+        public IActionResult CheckFfolderId(string FfolderId)
+        {
+            string FolderTemp = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == FfolderId)?.FfolderId ?? "";
+            
+            /*如果找到重複的回傳false代表不能再新增了*/
+            if (FolderTemp == FfolderId)
+            {
+                return Json(false);
+            }
+
+            return Json(true);
+        }
+
+
+        [HttpPost]
+        [HttpGet]
+        /*新增成員的時候檢查是否有重複的帳號*/
+        public IActionResult CheckMuid(string Muid)
+        {
+            string MemberItem = _dbContext.Members.FirstOrDefault(m => m.Muid == Muid)?.Muid ?? "";
+
+            if (MemberItem == Muid)
+            {
+                return Json(false);
+            }
+
+            return Json(true);
+        }
     }
 }

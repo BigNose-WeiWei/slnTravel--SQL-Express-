@@ -57,8 +57,12 @@
                         <a asp-action="FolderClassify" asp-route-Cid="@item.Cid" class="btn btn-primary" style="width:100px">預覽明細</a>
                 </td>
                 <td>
-                        <a asp-action="ClassifyDelete" asp-route-Cid="@item.Cid" class="btn btn-danger" style="width:100px"
-                           onclick="return confirm('確定要刪除嗎?')">刪除</a>
+                        <button type="button" class="btn btn-danger" style="width:100px;" data-bs-toggle="modal" data-bs-target="#DeleteConfirmModal"
+                                data-bs-Controller="AdminController" data-bs-Action="ClassifyDelete" data-bs-ActionID="Cid"
+                                data-bs-Key="@item.Cid" data-bs-Title="確定要刪除這個分類嗎?" data-bs-Thing="刪除後將無法復原!">
+                                刪除
+                        </button>
+                        @* 一律用_DeleteConfirmModal顯示方便管理 *@
                 </td>
             </tr>
     }

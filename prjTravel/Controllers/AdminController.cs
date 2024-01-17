@@ -8,6 +8,7 @@ using static NuGet.Packaging.PackagingConstants;
 
 namespace prjTravel.Controllers
 {
+    /*限Admin*/
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
@@ -129,6 +130,12 @@ namespace prjTravel.Controllers
         {
             var classify = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid);
 
+            if (classify == null)
+            {
+                TempData["Error"] = "無此相簿分類，請確認後重新送出";
+                return RedirectToAction("Index");
+            }
+
             return View(classify);
         }
 
@@ -141,30 +148,35 @@ namespace prjTravel.Controllers
                 try
                 {
                     int Cid = classify.Cid;
-                    var temp = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)!;
+                    var tempName = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)?.Cname ?? "";
 
-                    temp.Cname = classify.Cname;
-                    _dbContext.SaveChanges();
-                    TempData["Success"] = "相簿分類名稱修改成功";
-
-                    return RedirectToAction("Index");
+                    if (!String.IsNullOrEmpty(tempName))
+                    {
+                        tempName = classify.Cname;
+                        _dbContext.SaveChanges();
+                        TempData["Success"] = "相簿分類名稱修改成功";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "無此相簿分類，請確認後重新送出";
+                    }
                 }
                 catch (Exception)
                 {
                     TempData["Error"] = "相簿分類名稱修改失敗";
                 }
             }
-            return View(classify);
+            return RedirectToAction("Index");
         }
 
         //依相簿分類編號取得該分類的所有照片
-        public IActionResult FolderClassify(int Cid = 1, int? FolderStatus = null, string? SearchFolder = null)
+        public IActionResult FolderClassify(int? Cid = null, int? FolderStatus = null, string? SearchFolder = null)
         {
             int? Status = FolderStatus;
             string Search = SearchFolder != null ? SearchFolder : "";
-            ViewData["ClassifyKey"] = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)!.Cid;
+            ViewData["ClassifyKey"] = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)?.Cid.ToString() ?? "查無資料";
 
-            ViewBag.Classify = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)!.Cname;
+            ViewBag.Classify = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)?.Cname ?? "查無資料";
 
             var Folders = _dbContext.Folders
                 .Where(m => m.Fcid == Cid && m.Ftitle!.Contains(Search) && (Status == null || m.Fstatus == Status))
@@ -200,6 +212,12 @@ namespace prjTravel.Controllers
         {
             var folder = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == Fid);
 
+            if (folder == null)
+            {
+                TempData["Error"] = "查無資料，請確認資料正確性";
+                return RedirectToAction("Index");
+            }
+
             return View(folder);
         }
 
@@ -214,8 +232,46 @@ namespace prjTravel.Controllers
                 try
                 {
                     string? folderId = folder.FfolderId;
-
                     var folderTemp = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == folderId)!;
+                    int TitleNum = 0;
+                    /*如果使用者更改類別才觸發*/
+                    if (folderTemp.Fcid != folder.Fcid) 
+                    {
+                        string OldMenu, OldPath, NewMenu, NewPath;
+
+                        //找出舊資料
+                        var folderPictureTemp = _dbContext.FolderPictures
+                            .Where(m => m.Pfid == folderTemp.Fpicture)
+                            .ToList();
+
+                        foreach (var picture in folderPictureTemp) 
+                        {
+                            TitleNum++;
+                            OldMenu = $@"{_Path}\{folderTemp.Fcid}";
+                            NewMenu = $@"{_Path}\{folder.Fcid}";
+                            
+                            /*如果資料夾不存在建立，避免後面引發錯誤*/
+                            if (!DirectoryIsExists(OldMenu))
+                            {
+                                AddDirectory(DirectoryIsExists(OldMenu), OldMenu);
+                            }
+
+                            if (!DirectoryIsExists(NewMenu))
+                            {
+                                AddDirectory(DirectoryIsExists(NewMenu), NewMenu);
+                            }
+                            
+                            /*找出舊資料*/
+                            OldPath = $@"{_Path}\{folderTemp.Fcid}\{picture.Ppicture}";
+
+                            /*確認新舊資料夾都存在後，判斷檔案在不在由搬移的Function去做處理*/
+                            picture.Ppicture = $"Title_{folder.Fcid}_{folder.FfolderId}_{TitleNum}_{new Random().Next(999)}.jpg";
+                            NewPath = $@"{_Path}\{folder.Fcid}\{picture.Ppicture}";
+                            ChangePicturesByMenu(OldPath, NewPath);
+                            
+                            _dbContext.SaveChanges();
+                        }
+                    }
 
                     folderTemp.Fcid = folder.Fcid!;
                     folderTemp.Ftitle = folder.Ftitle;
@@ -260,9 +316,16 @@ namespace prjTravel.Controllers
         /*幻燈片圖片順序編輯頁面*/
         public IActionResult PictureRow(string Fpicture)
         {
-            var fold = _dbContext.Folders.FirstOrDefault(m => m.Fpicture == Fpicture)!;
-            ViewBag.FoldTitle = fold.Ftitle;
-            ViewBag.FoldCid = fold.Fcid;
+            var fold = _dbContext.Folders.FirstOrDefault(m => m.Fpicture == Fpicture);
+
+            if (fold == null)
+            {
+                TempData["Error"] = $"查無此資料，請確認資料正確性!";
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.FoldTitle = fold?.Ftitle;
+            ViewBag.FoldCid = fold?.Fcid;
             ViewBag.PictureFid = _dbContext.FolderPictures.FirstOrDefault(m => m.Pfid == Fpicture)!.Pfid;
 
             var Picture = _dbContext.FolderPictures.Where(m => m.Pfid == Fpicture).OrderBy(m => m.Prow).ToList();
@@ -299,7 +362,6 @@ namespace prjTravel.Controllers
             return View();
         }
 
-
         //刪除資料
         public IActionResult FolderDelete(string Fid)
         {
@@ -324,6 +386,8 @@ namespace prjTravel.Controllers
                 .Where(m => m.Muid.Contains(member) && m.Mrole!.Contains(classify))
                 .OrderBy(m => m.Mrole);
             //.Where(m => m.Mrole != "Admin");
+
+            ViewBag.Sid = User.FindFirst(ClaimTypes.Sid)!.Value;
 
             return View(MemberItem);
         }
@@ -371,10 +435,24 @@ namespace prjTravel.Controllers
             return RedirectToAction("MemberList");
         }
 
+        //使用者按下 按下_AdminLayout的Nav編輯個人資料時啟用
+        public IActionResult GoMemberEdit()
+        {
+            string Sid = User.FindFirst(ClaimTypes.Sid)!.Value;
+
+            return RedirectToAction("MemberEdit", new { Uid = Sid });
+        }
+
         //修改會員資料畫面
         public IActionResult MemberEdit(string Uid)
         {
             var memberEdit = _dbContext.Members.FirstOrDefault(m => m.Muid == Uid);
+
+            if (memberEdit == null)
+            {
+                TempData["Error"] = "會員資料編輯失敗，請確認會員資料正確性!";
+                return RedirectToAction("MemberList");
+            }
 
             return View(memberEdit);
         }
@@ -396,7 +474,7 @@ namespace prjTravel.Controllers
                     memberTemp.Mrole = member.Mrole;
 
                     _dbContext.SaveChanges();
-                    TempData["Success"] = $"{member.Mname}會員資料修改成功";
+                    TempData["Success"] = $"會員資料修改成功,請重新登入確認資料變更。";
                     return RedirectToAction("MemberList");
                 }
                 catch (Exception)
@@ -408,11 +486,32 @@ namespace prjTravel.Controllers
             return View(member);
         }
 
-        //觀看某會員的所有文章
-        public IActionResult MemberAllFold(string Uid)
+        //使用者按下 按下_AdminLayout的Nav我的文章時啟用
+        public IActionResult GoMemberAllFold()
         {
-            var FoldItem = _dbContext.Folders.Where(m => m.FcreateUser == Uid).OrderByDescending(m => m.FcreateTime);
-            ViewData["Name"] = _dbContext.Members.FirstOrDefault(m => m.Muid == Uid)!.Mname;
+            string Sid = User.FindFirst(ClaimTypes.Sid)!.Value;
+
+            return RedirectToAction("MemberAllFold", new { Uid = Sid});
+        }
+
+        //觀看某會員的所有文章
+        public IActionResult MemberAllFold(string? Uid,string? SearchFolder)
+        {
+            string Folder = SearchFolder != null ? SearchFolder : "";
+
+            var FoldItem = _dbContext.Folders
+                .Where(m => m.FcreateUser == Uid && m.Ftitle!.Contains(Folder))
+                .OrderByDescending(m => m.FcreateTime);
+
+            var MemberItem = _dbContext.Members.FirstOrDefault(m => m.Muid == Uid);
+            ViewData["Name"] = MemberItem?.Mname ?? "";
+            ViewData["MUid"] = MemberItem?.Muid ?? "";
+
+            if (MemberItem == null)
+            {
+                TempData["Error"] = "查無此會員";
+                return RedirectToAction("MemberList");
+            }
 
             return View(FoldItem);
         }
@@ -443,6 +542,12 @@ namespace prjTravel.Controllers
         {
             var folder = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == Fid);
 
+            if (folder == null)
+            {
+                TempData["Error"] = "文章編輯失敗，請確認資料正確性!";
+                return RedirectToAction("MemberList");
+            }
+
             return View(folder);
         }
 
@@ -457,8 +562,47 @@ namespace prjTravel.Controllers
                 try
                 {
                     string? folderId = folder.FfolderId;
-
                     var folderTemp = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == folderId)!;
+                    int TitleNum = 0;
+
+                    /*如果使用者更改類別才觸發*/
+                    if (folderTemp.Fcid != folder.Fcid)
+                    {
+                        string OldMenu, OldPath, NewMenu, NewPath;
+
+                        //找出舊資料
+                        var folderPictureTemp = _dbContext.FolderPictures
+                            .Where(m => m.Pfid == folderTemp.Fpicture)
+                            .ToList();
+
+                        foreach (var picture in folderPictureTemp)
+                        {
+                            TitleNum++;
+                            OldMenu = $@"{_Path}\{folderTemp.Fcid}";
+                            NewMenu = $@"{_Path}\{folder.Fcid}";
+
+                            /*如果資料夾不存在建立，避免後面引發錯誤*/
+                            if (!DirectoryIsExists(OldMenu))
+                            {
+                                AddDirectory(DirectoryIsExists(OldMenu), OldMenu);
+                            }
+
+                            if (!DirectoryIsExists(NewMenu))
+                            {
+                                AddDirectory(DirectoryIsExists(NewMenu), NewMenu);
+                            }
+
+                            /*找出舊資料*/
+                            OldPath = $@"{_Path}\{folderTemp.Fcid}\{picture.Ppicture}";
+
+                            /*確認新舊資料夾都存在後，判斷檔案在不在由搬移的Function去做處理*/
+                            picture.Ppicture = $"Title_{folder.Fcid}_{folder.FfolderId}_{TitleNum}_{new Random().Next(999)}.jpg";
+                            NewPath = $@"{_Path}\{folder.Fcid}\{picture.Ppicture}";
+                            ChangePicturesByMenu(OldPath, NewPath);
+
+                            _dbContext.SaveChanges();
+                        }
+                    }
 
                     folderTemp.Fcid = folder.Fcid!;
                     folderTemp.Ftitle = folder.Ftitle;
@@ -506,10 +650,17 @@ namespace prjTravel.Controllers
         //觀看某會員的所有文章_幻燈片圖片順序編輯頁面
         public IActionResult MemberAllPictureRow(string Fpicture)
         {
-            var fold = _dbContext.Folders.FirstOrDefault(m => m.Fpicture == Fpicture)!;
-            ViewBag.FoldTitle = fold.Ftitle;
-            ViewBag.FoldCid = fold.Fcid;
-            ViewBag.PictureFid = _dbContext.FolderPictures.FirstOrDefault(m => m.Pfid == Fpicture)!.Pfid;
+            var fold = _dbContext.Folders.FirstOrDefault(m => m.Fpicture == Fpicture);
+
+            if (fold == null)
+            {
+                TempData["Error"] = "跑馬燈順序編輯失敗，請確認資料正確性!";
+                return RedirectToAction("MemberList");
+            }
+
+            ViewBag.FoldTitle = fold?.Ftitle;
+            ViewBag.FoldCid = fold?.Fcid;
+            ViewBag.PictureFid = _dbContext.FolderPictures.FirstOrDefault(m => m.Pfid == Fpicture)?.Pfid;
 
             var Picture = _dbContext.FolderPictures.Where(m => m.Pfid == Fpicture).OrderBy(m => m.Prow).ToList();
 
@@ -611,7 +762,7 @@ namespace prjTravel.Controllers
             return View();
         }
 
-        //新增照片頁面
+        //新增資料頁面
         public IActionResult FolderUpload()
         {
             return View();
@@ -653,7 +804,7 @@ namespace prjTravel.Controllers
                 }
                 else
                 {
-                    Errormsg = "上傳圖片格式有誤";
+                    Errormsg = "圖片欄位不得為空";
                 }
             }
             else
@@ -674,7 +825,7 @@ namespace prjTravel.Controllers
             var advertise = (from AdvertiseItem   in _dbContext.Advertises
                              join FolderItem      in _dbContext.Folders on AdvertiseItem.AfolderId equals FolderItem.FfolderId into AdvertiseFolderItem
                              from AdvertiseFolder in AdvertiseFolderItem.DefaultIfEmpty()
-                             where (AdvertiseFolder.FfolderId!.Contains(Folder) || AdvertiseFolder.Ftitle!.Contains(Folder)) && (Status == null || AdvertiseItem.Astatus == Status)
+                             where (AdvertiseItem.AfolderId!.Contains(Folder) || AdvertiseFolder.Ftitle!.Contains(Folder)) && (Status == null || AdvertiseItem.Astatus == Status)
                              orderby AdvertiseItem.Aid
                              select AdvertiseItem
                             ).ToList();
@@ -707,7 +858,14 @@ namespace prjTravel.Controllers
         public IActionResult AdvertiseEdit(int Aid)
         {
             var advertise = _dbContext.Advertises.FirstOrDefault(m => m.Aid == Aid);
-             
+
+            /*預防使用者找不到資料後發生死當*/
+            if (advertise == null)
+            {
+                TempData["Error"] = $"查無此廣告資料，請確認資料正確性!";
+                return RedirectToAction("AdvertiseItem");
+            }
+
             return View(advertise);
         }
 
@@ -830,7 +988,7 @@ namespace prjTravel.Controllers
                 }
                 else 
                 {
-                    Errormsg = "上傳圖片格式有誤";
+                    Errormsg = "圖片欄位不得為空";
                 }
             }
             else 
@@ -974,24 +1132,26 @@ namespace prjTravel.Controllers
         }
 
         //依照分類顯示用戶畫面(非表格方式呈現)
-        public IActionResult FolderClassifyIndex(int Cid = 1, string? SearchFolder = null)
+        public IActionResult FolderClassifyIndex(int? Cid = null, string? SearchFolder = null)
         {
             string Search = (SearchFolder != null ? SearchFolder : "");
             /*查詢的時候需要類別代號*/
             ViewData["ClassifyKey"] = _dbContext.Classifies
                 .Where(m => m.Cstatus == 1)
-                .FirstOrDefault(m => m.Cid == Cid)!
-                .Cid;
+                .FirstOrDefault(m => m.Cid == Cid)?
+                .Cid.ToString() ?? "查無資料";
 
-            ViewBag.Classify = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)!.Cname;
+            ViewBag.Classify = _dbContext.Classifies
+                .FirstOrDefault(m => m.Cid == Cid)?
+                .Cname ?? "查無資料";
 
             var folders = _dbContext.Folders
                 .Where(m => m.Fcid == Cid && m.Fstatus == 1 && m.Ftitle!.Contains(Search))
-                .OrderByDescending(m => m.FeditTime).ToList();
+                .OrderByDescending(m => m.FeditTime)
+                .ToList();
 
             return View(folders);
         }
-
 
         /*主機刪除圖檔*/
         public void DeletePicture(int? Cid, string? Pid)
@@ -1035,6 +1195,26 @@ namespace prjTravel.Controllers
             return fileExists;
         }
 
+        /*檔案是否存在*/
+        public bool FileIsEsists(string Path)
+        {
+            bool fileExists = false;
+
+            try
+            {
+                if (System.IO.File.Exists(Path))
+                {
+                    fileExists = true;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+            return fileExists;
+        }
+    
         /*新增資料夾*/
         public void AddDirectory(bool fileExists, string Path)
         {
@@ -1058,13 +1238,30 @@ namespace prjTravel.Controllers
             {
                 if (fileExists)
                 {
-                    /*檢查該資料夾是否有檔案如果有幫我刪掉，雖然 Directory.Delete(Path,true)依照說明可以一次全刪可是不知道什麼有時候會失敗分開進行巴...*/
-                    foreach (string filePath in Directory.GetFiles(Path))
+                    DirectoryInfo dir = new DirectoryInfo(Path);
+                    FileInfo[] files = dir.GetFiles();
+
+                    /*找出這個資料夾底下的所有資料並刪除*/
+                    foreach (FileInfo filePath in files)
                     {
-                        System.IO.File.Delete(filePath);
+                        filePath.Delete();
                     }
 
-                    Directory.Delete(Path,true);   //加了true後,就算資料夾裡面有東西也一樣會全刪掉 有時候會報錯誤先用迴圈刪一次巴
+                    dir.Delete(true);
+                    //加了true後,就算資料夾裡面有東西也一樣會全刪掉。有時候會報錯誤先用迴圈刪一次巴
+                    //最後發現權限錯誤問題是Google雲端備份造成的...
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                //處理權限不足的情況。 這個問題不一定會觸發到機率型的 不一定是真的權限不夠... 同步Google雲端備份時有時候會報這個錯誤。
+                if (Directory.Exists(Path))
+                {
+                    DeleteDirectory(fileExists, Path);
+                }
+                else 
+                {
+                    throw;
                 }
             }
             catch
@@ -1072,7 +1269,6 @@ namespace prjTravel.Controllers
                 throw;
             }
         }
-
 
         /*修改資料夾名稱*/
         //public void RenameDirectory(bool fileExists, string OldPath, string NewPath)
@@ -1089,5 +1285,26 @@ namespace prjTravel.Controllers
         //        TempData["Error"] = $"變更資料夾名稱的時候發生了什麼錯誤,{ex}";
         //    }
         //}
+
+        /*搬移圖檔*/
+        public void ChangePicturesByMenu(string OldPath, string NewPath)
+        {
+            try
+            {
+                /*確定原本的位置上有這個圖檔*/
+                var OldIsExists = FileIsEsists(OldPath);
+
+                /*如果存在幫我搬移他並使用新的名稱*/
+                if (OldIsExists)
+                {
+                    Directory.Move(OldPath, NewPath);
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

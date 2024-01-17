@@ -49,6 +49,15 @@
     // })
     // .ToList();
 }
+<style>
+    /*ield-validation-valid 相同的樣式*/
+    .invalid-feedback.text-danger {
+        color: #dc3545;
+        font-size: 16px;
+        margin-top: 0rem;
+        font-family: 'Arial', sans-serif;
+    }
+</style>
 
 <!DOCTYPE html>
 
@@ -57,7 +66,8 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewData["Title"] - 台灣旅遊網</title>
 
-    <link href="~/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+@*     <link href="~/bootstrap/css/bootstrap.min.css" rel="stylesheet"/> *@
+    <link href="~/OverRideBootstrap.css" rel="stylesheet" />
 
     <style>
         .form-group{
@@ -77,7 +87,7 @@
 
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm bg-dark bg-gradient navbar-dark fw-bold">
+    <nav class="navbar navbar-expand-sm bg-dark bg-gradient navbar-dark fw-bold fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" asp-action="Index">台灣旅遊網</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
@@ -198,7 +208,7 @@
         </div> 
  *@
         
-    <div>
+    <div style="margin-top: 56px;">
         @RenderBody()
     </div>
 
@@ -215,5 +225,25 @@
     @RenderSection("Scripts", required: false)
 
     @await Html.PartialAsync("_ToastPartial")
+
 </body>
 </html>
+
+<!--取代瀏覽器預設的認證模式改成Bootstrap的 -->
+<script>
+    (function () {
+        var forms = document.querySelectorAll('.needs-validation')
+
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>

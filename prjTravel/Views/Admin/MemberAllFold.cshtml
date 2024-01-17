@@ -12,9 +12,9 @@
 <h4 class="fw-bold">@ViewData["Name"] - 相關資料</h4>
 <hr />
 
-<form asp-action="FolderClassify" method="get" class="col-12 col-sm-6 col-md-4 col-lg-4 mb-2">
+<form asp-action="MemberAllFold" method="get" class="col-12 col-sm-6 col-md-4 col-lg-4 mb-2">
     <div class="input-group">
-        <input type="text" class="form-control visually-hidden" name="Cid" value="@ViewData["ClassifyKey"]" />
+        <input type="text" class="form-control visually-hidden" name="Uid" value="@ViewData["MUid"]" />
         <input type="text" class="form-control" name="SearchFolder" placeholder="請輸入主題名稱">
         <span class="input-group-btn">
             <button type="submit" class="btn btn-secondary">查詢</button>
@@ -163,7 +163,12 @@
                             <a asp-action="MemberAllPictureRow" asp-route-Fpicture="@item.Fpicture" class="btn btn-primary btn-block" style="width:110px">跑馬燈順序</a>
                         </div>
                         <div class="mb-2">
-                            <a asp-action="MemberAllFolderDelete" asp-route-Fid="@item.FfolderId" class="btn btn-danger btn-block" style="width:110px" onclick="return confirm('確定要刪除嗎?')">刪除</a>
+                            <button type="button" class="btn btn-danger" style="width:110px;" data-bs-toggle="modal" data-bs-target="#DeleteConfirmModal"
+                                    data-bs-Controller="AdminController" data-bs-Action="MemberAllFolderDelete" data-bs-ActionID="Fid"
+                                    data-bs-Key="@item.FfolderId" data-bs-Title="確定要刪除這則資料嗎?" data-bs-Thing="刪除後將無法復原!">
+                                刪除
+                            </button>
+                            @* 一律用_DeleteConfirmModal顯示方便管理 *@
                         </div>
                     </td>
                 </tr>
