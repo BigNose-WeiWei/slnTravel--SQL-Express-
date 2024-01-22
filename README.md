@@ -9,58 +9,61 @@
 
 ## 資料庫  
 Member 使用者帳戶
-
-|Key| 名稱      | 資料類型            | 允許Null    | 預設  |    備註              |
-|:-:|:----------|:-------------------|:----------- |:-----|:---------------------|
-|*  |	MUid	|    nvarchar(50)    |    False    |      |    帳號              |
-|   |	MPwd	|    nvarchar(50)    |    True     |      |    密碼              |
-|   |	MName	|    nvarchar(50)    |    True     |      |    名稱              |
-|   |	MMail	|    nvarchar(50)    |    True     |	  |    信箱              |
+|Key| 名稱      | 資料類型            | 允許Null    | 預設  |    備註                |
+|:-:|:----------|:-------------------|:----------- |:----:|:----------------------|
+|*  |	MUid	|    nvarchar(50)    |    False    |      |    帳號                |
+|   |	MPwd	|    nvarchar(50)    |    True     |      |    密碼                |
+|   |	MName	|    nvarchar(50)    |    True     |      |    名稱                |
+|   |	MMail	|    nvarchar(50)    |    True     |	  |    信箱                |
 |   |	MRole	|    nvarchar(50)    |    True     |      |    角色 (串Role的Rid)  |
-|   |	MStatus	|    int             |    True     | (1)  |    是否啟用 1、0     | 
+|   |	MStatus	|    int             |    True     | (1)  |    是否啟用 1、0       | 
 
 Role 角色
-
-    Rid     //Key
-    RName   //名稱
-    RStatus //是否啟用 1 | 0  
+|Key| 名稱      | 資料類型            | 允許Null    | 預設  |    備註                |
+|:-:|:----------|:-------------------|:----------- |:----:|:----------------------|
+|*  |	RId	    |    nvarchar(50)    |    False    |      |    編號                |
+|   |	RName	|    nvarchar(50)    |    True     |      |    名稱                |
+|   |	RStatus	|    int             |    True     | (1)  |    是否啟用 1、0       | 
 
 Classify 分類
-
-    Cid      //編號
-    CName    //分類別稱
-    CStatus  //是否啟用 1 | 0  
+|Key| 名稱      | 資料類型            | 允許Null    | 預設  |    備註               |
+|:-:|:----------|:-------------------|:----------- |:----:|:----------------------|
+|*  |	Cid	    |    int             |    False    |      |    編號                |
+|   |	CName	|    nvarchar(50)    |    True     |      |    分類別稱            |
+|   |	CStatus	|    int             |    True     | (1)  |    是否啟用 1、0       | 
 
 Folder 文章資料
-
-    FFolderId    //產品ID
-    FCid         //屬於分類 串Classify的Cid
-    FTitle       //標題
-    FDescription //內容
-    FPicture     //圖片Id 串FolderPicture的PFid
-    FCreateUser  //創建帳號 串Member的Muid
-    FCreateTime  //創建時間
-    FEditUser    //最後修改帳號 串Member的Muid
-    FEditTime    //最後修改時間
-    FStatus      //是否啟用 1 | 0
+|Key| 名稱          | 資料類型            | 允許Null    | 預設  |    備註                          |
+|:-:|:--------------|:-------------------|:----------- |:----:|:---------------------------------|
+|*  |	FFolderId	|    nvarchar(50)    |    False    |      |    產品ID                        |
+|   |	FCid	    |    int             |    True     |      |    產品分類 (串Classify的Cid)       |
+|   |	FTitle	    |    nvarchar(50)    |    True     |      |    標題                          |
+|   |	FDescription|    nvarchar(MAX)   |    True     |	  |    內容                          |
+|   |	FPicture	|    nvarchar(50)    |    True     |      |    圖片Id (串FolderPicture的PFid)  |
+|   |	FCreateUser	|    nvarchar(50)    |    True     |      |    創建帳號 (串Member的Muid       | 
+|   |	FCreateTime	|    datetime        |    True     |      |    創建時間                      | 
+|   |	FEditUser	|    nvarchar(50)    |    True     |      |    最後修改帳號 串Member的Muid    | 
+|   |	FEditTime	|    datetime        |    True     |      |    最後修改時間                   | 
+|   |	FStatus	    |    int             |    True     | (1)  |    是否啟用 1、0                  | 
     
 Advertise 廣告資料
-
-    AId        //文章編號
-    ACid       //對應分類
-    AFolderId  //對應的文章
-    APicture   //圖片Id 串FolderPicture的PFid
-    AStatus    //是否啟用 1 | 0
-    ARow       //廣告順序
+|Key| 名稱          | 資料類型            | 允許Null    | 預設  |    備註                            |
+|:-:|:--------------|:-------------------|:----------- |:----:|:-----------------------------------|
+|*  |	AId	        |    int             |    False    |      |    文章編號                        |
+|   |	ACid	    |    int             |    True     |      |    對應分類                        |
+|   |	AFolderId	|    nvarchar(50)    |    True     |      |    對應的文章                      |
+|   |	APicture	|    nvarchar(50)    |    True     |	  |    圖片Id (串FolderPicture的PFid)  |
+|   |	AStatus	    |    int             |    True     | (1)  |    是否啟用 1、0                   |
+|   |	ARow	    |    int             |    True     |	  |    廣告順序                        | 
 
 FolderPicture 圖片存放位置
-
-    Pid              //編號
-    PFid             //圖片Id
-    PContentClassify //Title文章跑馬燈、Advertise廣告
-    PPicture         //圖片在主機的檔案名稱
-    PRow             //排序
-
+|Key| 名稱                  | 資料類型            | 允許Null    | 預設  |    備註                                |
+|:-:|:----------------------|:-------------------|:----------- |:----:|:----------------------                |
+|*  |	Pid	                |    int             |    False    |      |    編號                               |
+|   |	PFid	            |    nvarchar(50)    |    True     |      |    圖片Id                             |
+|   |	PContentClassify	|    nvarchar(50)    |    True     |      |    Title文章跑馬燈、Advertise廣告      |
+|   |	PPicture	        |    nvarchar(50)    |    True     |	  |    圖片在主機的檔案名稱                |
+|   |	PRow	            |    int             |    True     |      |    排序                               |
 
 ## 角色權限
 Admin、Manager、User、訪客。   
