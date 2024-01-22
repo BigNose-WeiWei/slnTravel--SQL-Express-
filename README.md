@@ -10,12 +10,14 @@
 ## 資料庫  
 Member 使用者帳戶
 
-    Muid    //帳號
-    MPwd    //密碼
-    MName   //名稱
-    MMail   //信箱
-    MRole   //角色 串Role的Rid
-    MStatus //是否啟用 1 | 0  
+|Key| 名稱      | 資料類型            | 允許Null    | 預設  |    備註              |
+|:-:|:----------|:-------------------|:----------- |:-----|:---------------------|
+|*  |	MUid	|    nvarchar(50)    |    False    |      |    帳號              |
+|   |	MPwd	|    nvarchar(50)    |    True     |      |    密碼              |
+|   |	MName	|    nvarchar(50)    |    True     |      |    名稱              |
+|   |	MMail	|    nvarchar(50)    |    True     |	  |    信箱              |
+|   |	MRole	|    nvarchar(50)    |    True     |      |    角色 (串Role的Rid)  |
+|   |	MStatus	|    int             |    True     | (1)  |    是否啟用 1、0     | 
 
 Role 角色
 
