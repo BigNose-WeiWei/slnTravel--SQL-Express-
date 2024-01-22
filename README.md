@@ -7,25 +7,6 @@
 * Bootstrap框架
 * 畫面採RWD設計
 
-## 角色
-Admin、Manager、User、訪客。   
-
-Admin
-
-    最高權限。  
-    
-Manager  
-
-    除了不可修改Admin的基本資料外其餘跟Admin相同。
-
-User  
-
-    只可上傳檔案，並且只能編輯自己創建的文章。  
-
-訪客
-
-    只可觀看。
-
 ## 資料庫  
 Member 使用者帳戶
 
@@ -77,3 +58,23 @@ FolderPicture 圖片存放位置
     PContentClassify //Title文章跑馬燈、Advertise廣告
     PPicture         //圖片在主機的檔案名稱
     PRow             //排序
+
+
+## 角色權限
+Admin、Manager、User、訪客。   
+
+Admin
+
+    最高權限。  
+    
+Manager  
+
+    除了不可修改Admin的基本資料外其餘跟Admin相同。
+
+User  
+
+    只可上傳檔案，並且只能編輯自己創建的文章。  
+
+訪客
+
+    只可觀看。
