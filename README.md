@@ -56,7 +56,7 @@ Advertise 廣告資料
 |   |	AStatus	    |    int             |    True     | (1)  |    是否啟用 1、0                   |
 |   |	ARow	    |    int             |    True     |	  |    廣告順序                        | 
 
-FolderPicture 圖片存放位置
+FolderPicture 圖片
 |Key| 名稱                  | 資料類型            | 允許Null    | 預設  |    備註                                |
 |:-:|:----------------------|:-------------------|:----------- |:----:|:----------------------                |
 |*  |	Pid	                |    int             |    False    |      |    編號                               |
