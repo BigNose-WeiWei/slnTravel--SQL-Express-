@@ -12,6 +12,9 @@ https://drive.google.com/file/d/10PK5DchI5r23K-sk3c1Nq2Hs9Ewvnpig/view?usp=drive
 * 畫面採RWD設計
 
 ## 資料庫  
+在prjTravel底下新增App_Data資料夾，放入dbProject.mdf即可  
+20240123 - https://drive.google.com/drive/folders/1vJyFrqc4kO1RbMRqAMxVkzpFAV8OQuVT?usp=drive_link
+
 Member 使用者帳戶
 |Key| 名稱      | 資料類型            | 允許Null    | 預設  |    備註                |
 |:-:|:----------|:-------------------|:----------- |:----:|:----------------------|
