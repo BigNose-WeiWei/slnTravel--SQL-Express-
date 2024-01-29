@@ -11,6 +11,10 @@ https://drive.google.com/file/d/10PK5DchI5r23K-sk3c1Nq2Hs9Ewvnpig/view?usp=drive
 * Bootstrap框架
 * 畫面採RWD設計
 
+## Node.js
+因為有使用SCSS覆寫Bootstrap的優先權需要安裝Node.js  
+https://nodejs.org/en
+
 ## 資料庫  
 在prjTravel底下新增App_Data資料夾，放入dbProject.mdf即可  
 20240123 - https://drive.google.com/drive/folders/1vJyFrqc4kO1RbMRqAMxVkzpFAV8OQuVT?usp=drive_link
