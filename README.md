@@ -1,3 +1,5 @@
+使用SQL Express作為資料庫
+
 # 網頁功能介紹
 https://drive.google.com/file/d/10PK5DchI5r23K-sk3c1Nq2Hs9Ewvnpig/view?usp=drive_link  
 
