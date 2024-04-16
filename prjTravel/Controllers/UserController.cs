@@ -445,6 +445,12 @@ namespace prjTravel.Controllers
                 return RedirectToAction("GoMemberEdit");
             }
 
+            if (Uid != User.FindFirst(ClaimTypes.Sid)!.Value)
+            {
+                TempData["Error"] = $"權限錯誤，一般使用者只能編輯自己的文章";
+                return RedirectToAction("GoMemberEdit");
+            }
+
             if (memberEdit!.Mrole != "Admin" && memberEdit!.Mrole != "Manager")
             {
                 return View(memberEdit);
@@ -498,7 +504,7 @@ namespace prjTravel.Controllers
 
             if (Uid != User.FindFirst(ClaimTypes.Sid)!.Value)
             {
-                TempData["Error"] = "權限錯誤,一般用戶只能觀看自己的文章";
+                TempData["Error"] = "權限錯誤，一般用戶只能觀看自己的文章";
                 return RedirectToAction("GoMemberAllFold");
             }
 

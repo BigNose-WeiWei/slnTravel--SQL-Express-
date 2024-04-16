@@ -148,11 +148,12 @@ namespace prjTravel.Controllers
                 try
                 {
                     int Cid = classify.Cid;
-                    var tempName = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)?.Cname ?? "";
+                    var tempName = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid);
 
-                    if (!String.IsNullOrEmpty(tempName))
+                    if (!String.IsNullOrEmpty(tempName?.Cname))
                     {
-                        tempName = classify.Cname;
+                        tempName.Cname = classify.Cname;
+
                         _dbContext.SaveChanges();
                         TempData["Success"] = "相簿分類名稱修改成功";
                     }

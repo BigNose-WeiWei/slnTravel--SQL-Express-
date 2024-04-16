@@ -17,7 +17,7 @@ public partial class Advertise
     [Display(Name = "狀態")]
     public int? Astatus { get; set; }
     [Display(Name = "廣告順序")]
-    [Range(0,99,ErrorMessage = "數值必須介於0至99")]
+    [Range(0, 99, ErrorMessage = "數值必須介於0至99")]
     [RegularExpression("^[0-9]+$", ErrorMessage = "請輸入有效的數值")]
     public int? Arow { get; set; }
 }

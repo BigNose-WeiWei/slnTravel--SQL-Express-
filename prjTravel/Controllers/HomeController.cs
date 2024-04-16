@@ -158,7 +158,7 @@ namespace prjTravel.Controllers
                 return RedirectToAction("Index", member.Mrole);
             }
 
-            TempData["Error"] = "帳密錯誤，或被關閉請聯絡管理員!";
+            TempData["Error"] = "帳密錯誤或是關閉請聯絡管理員!";
             return View();
         }
 
@@ -172,7 +172,7 @@ namespace prjTravel.Controllers
 
         [HttpPost]
         [HttpGet]
-        /*新增資料時判斷客戶編號是否重複 當作共用方法放在Home控制器裡*/
+        /*模型判斷條件: 新增資料時判斷客戶編號是否重複 當作共用方法放在Home控制器裡*/
         public IActionResult CheckFfolderId(string FfolderId)
         {
             string FolderTemp = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == FfolderId)?.FfolderId ?? "";
@@ -186,10 +186,9 @@ namespace prjTravel.Controllers
             return Json(true);
         }
 
-
         [HttpPost]
         [HttpGet]
-        /*新增成員的時候檢查是否有重複的帳號*/
+        /*模型判斷條件: 新增成員的時候檢查是否有重複的帳號*/
         public IActionResult CheckMuid(string Muid)
         {
             string MemberItem = _dbContext.Members.FirstOrDefault(m => m.Muid == Muid)?.Muid ?? "";
@@ -200,6 +199,12 @@ namespace prjTravel.Controllers
             }
 
             return Json(true);
+        }
+
+        //權限不足警告畫面
+        public IActionResult NoAuthorization()
+        { 
+            return View();
         }
     }
 }

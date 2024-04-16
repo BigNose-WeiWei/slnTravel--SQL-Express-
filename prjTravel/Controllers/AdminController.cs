@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using prjTravel.Models;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace prjTravel.Controllers
 {
@@ -43,7 +40,7 @@ namespace prjTravel.Controllers
                 var folders = _dbContext.Folders.Where(m => m.Fcid == Cid)!.ToList();
 
                 var pictureTemp = (from foldersItem in _dbContext.Folders
-                                   join pictureItem in _dbContext.FolderPictures 
+                                   join pictureItem in _dbContext.FolderPictures
                                         on foldersItem.Fpicture equals pictureItem.Pfid into folders_pictures
                                    from pictureItem in folders_pictures.DefaultIfEmpty()
                                    where foldersItem.Fcid == Cid
@@ -148,11 +145,12 @@ namespace prjTravel.Controllers
                 try
                 {
                     int Cid = classify.Cid;
-                    var tempName = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid)?.Cname ?? "";
+                    var tempName = _dbContext.Classifies.FirstOrDefault(m => m.Cid == Cid);
 
-                    if (!String.IsNullOrEmpty(tempName))
+                    if (!String.IsNullOrEmpty(tempName?.Cname))
                     {
-                        tempName = classify.Cname;
+                        tempName.Cname = classify.Cname;
+                        
                         _dbContext.SaveChanges();
                         TempData["Success"] = "相簿分類名稱修改成功";
                     }
@@ -235,7 +233,7 @@ namespace prjTravel.Controllers
                     var folderTemp = _dbContext.Folders.FirstOrDefault(m => m.FfolderId == folderId)!;
                     int TitleNum = 0;
                     /*如果使用者更改類別才觸發*/
-                    if (folderTemp.Fcid != folder.Fcid) 
+                    if (folderTemp.Fcid != folder.Fcid)
                     {
                         string OldMenu, OldPath, NewMenu, NewPath;
 
@@ -244,12 +242,12 @@ namespace prjTravel.Controllers
                             .Where(m => m.Pfid == folderTemp.Fpicture)
                             .ToList();
 
-                        foreach (var picture in folderPictureTemp) 
+                        foreach (var picture in folderPictureTemp)
                         {
                             TitleNum++;
                             OldMenu = $@"{_Path}\{folderTemp.Fcid}";
                             NewMenu = $@"{_Path}\{folder.Fcid}";
-                            
+
                             /*如果資料夾不存在建立，避免後面引發錯誤*/
                             if (!DirectoryIsExists(OldMenu))
                             {
@@ -260,7 +258,7 @@ namespace prjTravel.Controllers
                             {
                                 AddDirectory(DirectoryIsExists(NewMenu), NewMenu);
                             }
-                            
+
                             /*找出舊資料*/
                             OldPath = $@"{_Path}\{folderTemp.Fcid}\{picture.Ppicture}";
 
@@ -268,7 +266,7 @@ namespace prjTravel.Controllers
                             picture.Ppicture = $"Title_{folder.Fcid}_{folder.FfolderId}_{TitleNum}_{new Random().Next(999)}.jpg";
                             NewPath = $@"{_Path}\{folder.Fcid}\{picture.Ppicture}";
                             ChangePicturesByMenu(OldPath, NewPath);
-                            
+
                             _dbContext.SaveChanges();
                         }
                     }
@@ -491,11 +489,11 @@ namespace prjTravel.Controllers
         {
             string Sid = User.FindFirst(ClaimTypes.Sid)!.Value;
 
-            return RedirectToAction("MemberAllFold", new { Uid = Sid});
+            return RedirectToAction("MemberAllFold", new { Uid = Sid });
         }
 
         //觀看某會員的所有文章
-        public IActionResult MemberAllFold(string? Uid,string? SearchFolder)
+        public IActionResult MemberAllFold(string? Uid, string? SearchFolder)
         {
             string Folder = SearchFolder != null ? SearchFolder : "";
 
@@ -822,8 +820,8 @@ namespace prjTravel.Controllers
             int? Status = SearchStatus;
             string Folder = SearchFolder != null ? SearchFolder : "";
 
-            var advertise = (from AdvertiseItem   in _dbContext.Advertises
-                             join FolderItem      in _dbContext.Folders on AdvertiseItem.AfolderId equals FolderItem.FfolderId into AdvertiseFolderItem
+            var advertise = (from AdvertiseItem in _dbContext.Advertises
+                             join FolderItem in _dbContext.Folders on AdvertiseItem.AfolderId equals FolderItem.FfolderId into AdvertiseFolderItem
                              from AdvertiseFolder in AdvertiseFolderItem.DefaultIfEmpty()
                              where (AdvertiseItem.AfolderId!.Contains(Folder) || AdvertiseFolder.Ftitle!.Contains(Folder)) && (Status == null || AdvertiseItem.Astatus == Status)
                              orderby AdvertiseItem.Aid
@@ -834,7 +832,7 @@ namespace prjTravel.Controllers
         }
 
         /* 改變廣告狀態 顯示|隱藏 */
-        public IActionResult AdvertiseStatus(int Aid) 
+        public IActionResult AdvertiseStatus(int Aid)
         {
             var advertise = _dbContext.Advertises.FirstOrDefault(m => m.Aid == Aid)!;
 
@@ -874,7 +872,7 @@ namespace prjTravel.Controllers
         public async Task<IActionResult> AdvertiseEdit(Advertise advertise, IFormFile? AdFormfilesSm, IFormFile? AdFormfilesMb)
         {
             string Errormsg = "";   //錯誤訊息
-            
+
             try
             {
                 var AdvertiseTemp = _dbContext.Advertises.FirstOrDefault(A => A.Aid == advertise.Aid)!;
@@ -911,7 +909,7 @@ namespace prjTravel.Controllers
                     /*將圖檔傳至pictures裡*/
                     await CreatePictureAd(AdvertiseTemp, AdFormfilesSm, AdFormfilesMb);
                 }
-                
+
 
                 TempData["Success"] = "廣告編輯成功";
                 return RedirectToAction("AdvertiseItem");
@@ -938,7 +936,7 @@ namespace prjTravel.Controllers
                     _dbContext.Advertises.Remove(Advertise);
                     _dbContext.SaveChanges();
                 }
-                
+
                 TempData["Success"] = "廣告刪除成功";
                 return RedirectToAction("AdvertiseItem");
             }
@@ -986,12 +984,12 @@ namespace prjTravel.Controllers
                         Errormsg = $"新增資料至DB時發現例外狀況, {ex}";
                     }
                 }
-                else 
+                else
                 {
                     Errormsg = "圖片欄位不得為空";
                 }
             }
-            else 
+            else
             {
                 Errormsg = "資料驗證失敗";
             }
@@ -1008,11 +1006,11 @@ namespace prjTravel.Controllers
                 string fileNameSm, fileNameMb;
                 IList<FolderPicture> folderpicture = new List<FolderPicture>();
 
-                if (!DirectoryIsExists(savePath)) 
+                if (!DirectoryIsExists(savePath))
                 {
                     AddDirectory(false, savePath);
                 }
-                
+
                 /*處理Sm的圖*/
                 if (AdFormfilesMb != null && AdFormfilesMb.Length > 0)
                 {
@@ -1047,7 +1045,8 @@ namespace prjTravel.Controllers
 
                 _dbContext.SaveChanges();
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 throw;
             }
         }
@@ -1112,7 +1111,7 @@ namespace prjTravel.Controllers
 
                     _dbContext.FolderPictures.RemoveRange(DeleteItems);
                 }
-                else 
+                else
                 {
                     var DeleteItem = _dbContext.FolderPictures.FirstOrDefault(m => m.Pfid == Pid && m.Ppicture!.Contains(type));
 
@@ -1122,7 +1121,7 @@ namespace prjTravel.Controllers
                         _dbContext.FolderPictures.Remove(DeleteItem);
                     }
                 }
-                
+
                 _dbContext.SaveChanges();
             }
             catch
@@ -1214,7 +1213,7 @@ namespace prjTravel.Controllers
 
             return fileExists;
         }
-    
+
         /*新增資料夾*/
         public void AddDirectory(bool fileExists, string Path)
         {
@@ -1259,7 +1258,7 @@ namespace prjTravel.Controllers
                 {
                     DeleteDirectory(fileExists, Path);
                 }
-                else 
+                else
                 {
                     throw;
                 }
